@@ -1,13 +1,30 @@
+import { useEffect, useState } from "react";
+import TodoComp from "./components/todo";
+import CreateTodo from "./components/CreateTodo";
+import axios from "axios";
+
 const App = () => {
+  const [todos, setTodo] = useState([]);
+  const getTodos = async () => {
+    const { data } = await axios.get(`/todos`);
+    setTodo(data);
+  };
+
+  axios.defaults.baseURL = `http://localhost:3000`;
+
+  const handleUpdate = (updateTodos) => {
+    setTodo((oldTodo) =>
+      oldTodo.map((old) => (old._id === updateTodos._id ? updateTodos : old))
+    );
+  };
+  const handleTodoCreation = (newTodo) => setTodo([...todos, newTodo]);
+  useEffect(() => {
+    getTodos();
+  }, []);
   return (
-    <div className=" flex justify-center items-center h-screen">
-      <div className="flex flex-col gap-6 justify-center items-center">
-        <h1 className=" text-xl font-semibold">Todo</h1>
-        <input
-          type="text"
-          className=" border border-blue-300 pl-2 py-1 rounded-lg text-lg focus:outline-none"
-        />
-      </div>
+    <div className=" flex  flex-col items-start mt-20 ml-20 gap-8 ">
+      <CreateTodo onTodoCreation={handleTodoCreation} />
+      <TodoComp todos={todos} onUpdate={handleUpdate} />
     </div>
   );
 };
